@@ -1,0 +1,121 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity machine_bonbon is
+    Port (
+        clk         : in  STD_LOGIC;  -- Clock
+        reset       : in  STD_LOGIC;  -- Reset
+        m5          : in  STD_LOGIC;  -- 5 cents input
+        m10         : in  STD_LOGIC;  -- 10 cents input
+        m25         : in  STD_LOGIC;  -- 25 cents input
+
+        -- Affichage des montants insérés (2 afficheurs)
+        HEX00       : out STD_LOGIC;
+        HEX01       : out STD_LOGIC;
+        HEX02       : out STD_LOGIC;
+        HEX03       : out STD_LOGIC;
+        HEX04       : out STD_LOGIC;
+        HEX05       : out STD_LOGIC;
+        HEX06       : out STD_LOGIC;
+
+        HEX10       : out STD_LOGIC;
+        HEX11       : out STD_LOGIC;
+        HEX12       : out STD_LOGIC;
+        HEX13       : out STD_LOGIC;
+        HEX14       : out STD_LOGIC;
+        HEX15       : out STD_LOGIC;
+        HEX16       : out STD_LOGIC;
+
+        -- Affichage de la monnaie à rendre (2 afficheurs)
+        HEX30       : out STD_LOGIC;
+        HEX31       : out STD_LOGIC;
+        HEX32       : out STD_LOGIC;
+        HEX33       : out STD_LOGIC;
+        HEX34       : out STD_LOGIC;
+        HEX35       : out STD_LOGIC;
+        HEX36       : out STD_LOGIC;
+
+        HEX40       : out STD_LOGIC;
+        HEX41       : out STD_LOGIC;
+        HEX42       : out STD_LOGIC;
+        HEX43       : out STD_LOGIC;
+        HEX44       : out STD_LOGIC;
+        HEX45       : out STD_LOGIC;
+        HEX46       : out STD_LOGIC;
+
+        Distribuer  : out STD_LOGIC -- Signal de distribution des bonbons
+    );
+end machine_bonbon;
+
+architecture Struct of machine_bonbon is
+
+    -- Signaux internes pour la somme des pièces insérées et la monnaie à rendre
+    signal sommeMonnaies : STD_LOGIC_VECTOR(3 downto 0); -- 4 bits pour la somme
+    signal monnaieRendue : STD_LOGIC_VECTOR(2 downto 0); -- 3 bits pour la monnaie rendue
+
+begin
+
+    -- Instanciation du contrôleur FSM
+    fsm_controller_inst : entity work.fsm_moore
+        port map (
+            clk              => clk,
+            reset            => reset,
+            piece_5          => m5,        -- Correspond à l'insertion de 5 cents
+            piece_10         => m10,       -- Correspond à l'insertion de 10 cents
+            piece_25         => m25,       -- Correspond à l'insertion de 25 cents
+            sommeMonnaies    => sommeMonnaies,  -- Bus pour afficher la somme des pièces
+            monnaiesRetournees => monnaieRendue, -- Bus pour afficher la monnaie à rendre
+            Distribuer       => Distribuer -- Signal de distribution des bonbons
+        );
+
+    -- Affichage de la somme des pièces insérées sur les 2 premiers afficheurs (HEX0 et HEX1)
+    afficheur_somme : entity work.segment_controller
+        port map (
+            SW3  => sommeMonnaies(3),  -- Bits de la somme
+            SW2  => sommeMonnaies(2),
+            SW1  => sommeMonnaies(1),
+            SW0  => sommeMonnaies(0),
+
+            HEX00 => HEX00,
+            HEX01 => HEX01,
+            HEX02 => HEX02,
+            HEX03 => HEX03,
+            HEX04 => HEX04,
+            HEX05 => HEX05,
+            HEX06 => HEX06,
+
+            HEX10 => HEX10,
+            HEX11 => HEX11,
+            HEX12 => HEX12,
+            HEX13 => HEX13,
+            HEX14 => HEX14,
+            HEX15 => HEX15,
+            HEX16 => HEX16
+        );
+
+    -- Affichage de la monnaie à rendre sur les afficheurs (HEX3 et HEX4)
+    afficheur_monnaie : entity work.segment_controller
+        port map (
+            SW3  => '0',                    -- Pas de pièce de 25 cents à afficher
+            SW2  => monnaieRendue(2),        -- 20 cents
+            SW1  => monnaieRendue(1),        -- 10 cents
+            SW0  => monnaieRendue(0),        -- 5 cents
+
+            HEX00 => HEX30,
+            HEX01 => HEX31,
+            HEX02 => HEX32,
+            HEX03 => HEX33,
+            HEX04 => HEX34,
+            HEX05 => HEX35,
+            HEX06 => HEX36,
+
+            HEX10 => HEX40,
+            HEX11 => HEX41,
+            HEX12 => HEX42,
+            HEX13 => HEX43,
+            HEX14 => HEX44,
+            HEX15 => HEX45,
+            HEX16 => HEX46
+        );
+
+end Struct;

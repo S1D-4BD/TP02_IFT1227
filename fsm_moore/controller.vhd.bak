@@ -1,0 +1,152 @@
+--controller
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity controller is
+    Port (
+        clk              : in  STD_LOGIC;   -- Clock 
+        reset            : in  STD_LOGIC;   -- Reset 
+        piece_5          : in  STD_LOGIC;   -- mettre 5 cents
+        piece_10         : in  STD_LOGIC;   -- mettre 10 cents
+        piece_25         : in  STD_LOGIC;   -- mettre 25 cents
+        sommeMonnaies    : out STD_LOGIC_VECTOR(3 downto 0); --le bus pour afficher le total
+        monnaiesRetournees : out STD_LOGIC_VECTOR(2 downto 0); -- bus pr afficher ce quil faut remettre
+        Distribuer       : out STD_LOGIC -- pr moi
+    );
+end controller;
+
+architecture Behavioral of controller is
+
+    -- les etats= toutes les sommes possibles
+    type state_type is (etat0, etat5, etat10, etat15, etat20, etat25, etat30, etat35, etat40, etat45);
+    signal current_state, next_state : state_type;
+
+begin
+    ------------------------------------------------------------------
+    -- transition 
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            current_state <= etat0; 
+        elsif rising_edge(clk) then
+            current_state <= next_state; 
+        end if;
+    end process;
+
+    ------------------------------------------------------------------
+    -- Logique de transition
+    process(current_state, piece_5, piece_10, piece_25)
+    begin
+        -- 
+        sommeMonnaies <= "0000"; 
+        monnaiesRetournees <= "000"; 
+        Distribuer <= '0'; 
+
+        -----------------
+		  --case des etats
+        case current_state is
+            when etat0 => -- État initial, 0 cent
+                if piece_5 = '1' then
+                    next_state <= etat5;
+                elsif piece_10 = '1' then
+                    next_state <= etat10;
+                elsif piece_25 = '1' then
+                    next_state <= etat25;
+                else
+                    next_state <= etat0;
+                end if;
+                sommeMonnaies <= "0000"; -- affiche 0
+
+            when etat5 => -- 5 cents lus
+                if piece_5 = '1' then
+                    next_state <= etat10;
+                elsif piece_10 = '1' then
+                    next_state <= etat15;
+                elsif piece_25 = '1' then
+                    next_state <= etat30;
+                    monnaiesRetournees <= "001"; -- Rendre 5 cent
+                else
+                    next_state <= etat5;
+                end if;
+                sommeMonnaies <= "0001"; -- affiche 5
+
+            when etat10 => -- 10 cents lus
+                if piece_5 = '1' then
+                    next_state <= etat15;
+                elsif piece_10 = '1' then
+                    next_state <= etat20;
+                elsif piece_25 = '1' then
+                    next_state <= etat35;
+                    monnaiesRetournees <= "010"; -- Rendre 10 
+                else
+                    next_state <= etat10;
+                end if;
+                sommeMonnaies <= "0010"; -- affiche 5
+
+            when etat15 => -- 15 cent lus
+                if piece_5 = '1' then
+                    next_state <= etat20;
+                elsif piece_10 = '1' then
+                    next_state <= etat25;
+                    Distribuer <= '1'; -- Distribuer
+                elsif piece_25 = '1' then
+                    next_state <= etat40;
+                    monnaiesRetournees <= "011"; -- Rendre 15 centime
+                else
+                    next_state <= etat15;
+                end if;
+                sommeMonnaies <= "0011"; -- affiche 15
+
+            when etat20 => -- 20 cent lus
+                if piece_5 = '1' then
+                    next_state <= etat25;
+                    Distribuer <= '1'; -- Distribuer
+                elsif piece_10 = '1' then
+                    next_state <= etat30;
+                    monnaiesRetournees <= "001"; -- Rendre 5 
+                elsif piece_25 = '1' then
+                    next_state <= etat45;
+                    monnaiesRetournees <= "100"; -- Rendre 20
+                else
+                    next_state <= etat20;
+                end if;
+                sommeMonnaies <= "0100"; -- Affiche 20
+
+            when etat25 => -- 25 cent kus, distribuer et revenir à 0
+                Distribuer <= '1'; -- Distribuer 
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- afficher 25
+
+            when etat30 => -- 30 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "001"; -- Rendre 5 centimes
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- Montant 25 (après distribution)
+
+            when etat35 => -- 35 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "010"; -- Rendre 10 centimes
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- Montant 25 (après distribution)
+
+            when etat40 => -- 40 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "011"; -- Rendre 15 centimes
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- Montant 25 (après distribution)
+
+            when etat45 => -- 45 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "100"; -- Rendre 20 centimes
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- Montant 25 (après distribution)
+
+            when others =>
+                next_state <= etat0;
+                sommeMonnaies <= "0000"; -- Par défaut
+
+        end case;
+    end process;
+
+end Behavioral;

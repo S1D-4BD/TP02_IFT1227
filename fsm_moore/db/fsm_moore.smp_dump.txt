@@ -1,0 +1,13 @@
+
+State Machine - |fsm_moore|controller:fsm_controller_inst|state
+Name state.etat45 state.etat40 state.etat35 state.etat30 state.etat25 state.etat20 state.etat15 state.etat10 state.etat5 state.etat0 
+state.etat0 0 0 0 0 0 0 0 0 0 0 
+state.etat5 0 0 0 0 0 0 0 0 1 1 
+state.etat10 0 0 0 0 0 0 0 1 0 1 
+state.etat15 0 0 0 0 0 0 1 0 0 1 
+state.etat20 0 0 0 0 0 1 0 0 0 1 
+state.etat25 0 0 0 0 1 0 0 0 0 1 
+state.etat30 0 0 0 1 0 0 0 0 0 1 
+state.etat35 0 0 1 0 0 0 0 0 0 1 
+state.etat40 0 1 0 0 0 0 0 0 0 1 
+state.etat45 1 0 0 0 0 0 0 0 0 1 

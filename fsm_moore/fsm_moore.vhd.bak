@@ -1,0 +1,143 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity fsm_moore is
+    Port (
+        clk              : in  STD_LOGIC;   -- Clock 
+        reset            : in  STD_LOGIC;   -- Reset 
+        piece_5          : in  STD_LOGIC;   -- Input for 5 cents
+        piece_10         : in  STD_LOGIC;   -- Input for 10 cents
+        piece_25         : in  STD_LOGIC;   -- Input for 25 cents
+        sommeMonnaies    : out STD_LOGIC_VECTOR(3 downto 0); -- Sum of inserted coins
+        monnaiesRetournees : out STD_LOGIC_VECTOR(2 downto 0); -- Change to return
+        Distribuer       : out STD_LOGIC -- Candy distribution signal
+    );
+end fsm_moore;
+
+architecture Behavioral of fsm_moore is
+
+    -- Définir les états basés sur le montant des pièces accumulées
+    type state_type is (etat0, etat5, etat10, etat15, etat20, etat25, etat30, etat35, etat40, etat45);
+    signal current_state, next_state : state_type;
+
+begin
+    ------------------------------------------------------------------
+    -- Processus de transition d'état avec le reset et le signal d'horloge
+    process(clk, reset)
+    begin
+        if reset = '1' then
+            current_state <= etat0; 
+        elsif rising_edge(clk) then
+            current_state <= next_state; 
+        end if;
+    end process;
+
+    ------------------------------------------------------------------
+    -- Logique de transition d'état et des sorties basées sur les entrées
+    process(current_state, piece_5, piece_10, piece_25)
+    begin
+        -- Valeurs par défaut des sorties
+        sommeMonnaies <= "0000"; -- Reset des sommes
+        monnaiesRetournees <= "000"; -- Reset de la monnaie rendue
+        Distribuer <= '0'; -- Par défaut, pas de distribution
+
+        -- Cas de transition en fonction de l'état courant
+        case current_state is
+            when etat0 => -- État initial, 0 centime
+                if piece_5 = '1' then
+                    next_state <= etat5;
+                elsif piece_10 = '1' then
+                    next_state <= etat10;
+                elsif piece_25 = '1' then
+                    next_state <= etat25;
+                else
+                    next_state <= etat0;
+                end if;
+                sommeMonnaies <= "0000"; -- Montant 0
+
+            when etat5 => -- 5 centimes accumulés
+                if piece_5 = '1' then
+                    next_state <= etat10;
+                elsif piece_10 = '1' then
+                    next_state <= etat15;
+                elsif piece_25 = '1' then
+                    next_state <= etat30;
+                    monnaiesRetournees <= "001"; -- Rendre 5 centimes
+                else
+                    next_state <= etat5;
+                end if;
+                sommeMonnaies <= "0001"; -- Montant 5
+
+            when etat10 => -- 10 centimes accumulés
+                if piece_5 = '1' then
+                    next_state <= etat15;
+                elsif piece_10 = '1' then
+                    next_state <= etat20;
+                elsif piece_25 = '1' then
+                    next_state <= etat35;
+                    monnaiesRetournees <= "010"; -- Rendre 10 centimes
+                else
+                    next_state <= etat10;
+                end if;
+                sommeMonnaies <= "0010"; -- Montant 10
+
+            when etat15 => -- 15 centimes accumulés
+                if piece_5 = '1' then
+                    next_state <= etat20;
+                elsif piece_10 = '1' then
+                    next_state <= etat25;
+                    Distribuer <= '1'; -- Distribuer des bonbons
+                elsif piece_25 = '1' then
+                    next_state <= etat40;
+                    monnaiesRetournees <= "011"; -- Rendre 15 centimes
+                else
+                    next_state <= etat15;
+                end if;
+                sommeMonnaies <= "0011"; -- Montant 15
+
+            when etat20 => -- 20 centimes accumulés
+                if piece_5 = '1' then
+                    next_state <= etat25;
+                    Distribuer <= '1'; -- Distribuer des bonbons
+                elsif piece_10 = '1' then
+                    next_state <= etat30;
+                    monnaiesRetournees <= "001"; -- Rendre 5 centimes
+                elsif piece_25 = '1' then
+                    next_state <= etat45;
+                    monnaiesRetournees <= "100"; -- Rendre 20 centimes
+                else
+                    next_state <= etat20;
+                end if;
+                sommeMonnaies <= "0100"; -- Montant 20
+
+            when etat25 => -- 25 centimes accumulés, distribuer et revenir à 0
+                Distribuer <= '1'; -- Distribuer des bonbons
+                next_state <= etat0;
+                sommeMonnaies <= "1000"; -- Montant 25, distribution complète
+
+            when etat30 => -- 30 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "001"; -- Rendre 5 centimes
+                next_state <= etat0;
+
+            when etat35 => -- 35 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "010"; -- Rendre 10 centimes
+                next_state <= etat0;
+
+            when etat40 => -- 40 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "011"; -- Rendre 15 centimes
+                next_state <= etat0;
+
+            when etat45 => -- 45 centimes, rendre monnaie
+                Distribuer <= '1'; -- Distribuer des bonbons
+                monnaiesRetournees <= "100"; -- Rendre 20 centimes
+                next_state <= etat0;
+
+            when others =>
+                next_state <= etat0;
+        end case;
+    end process;
+
+end Behavioral;

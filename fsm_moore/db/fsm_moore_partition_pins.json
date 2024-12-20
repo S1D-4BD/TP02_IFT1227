@@ -1,0 +1,105 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "HEX01",
+					"strict" : false
+				},
+				{
+					"name" : "HEX04",
+					"strict" : false
+				},
+				{
+					"name" : "HEX06",
+					"strict" : false
+				},
+				{
+					"name" : "HEX10",
+					"strict" : false
+				},
+				{
+					"name" : "HEX12",
+					"strict" : false
+				},
+				{
+					"name" : "HEX13",
+					"strict" : false
+				},
+				{
+					"name" : "HEX14",
+					"strict" : false
+				},
+				{
+					"name" : "HEX15",
+					"strict" : false
+				},
+				{
+					"name" : "HEX16",
+					"strict" : false
+				},
+				{
+					"name" : "HEX31",
+					"strict" : false
+				},
+				{
+					"name" : "HEX34",
+					"strict" : false
+				},
+				{
+					"name" : "HEX36",
+					"strict" : false
+				},
+				{
+					"name" : "HEX40",
+					"strict" : false
+				},
+				{
+					"name" : "HEX42",
+					"strict" : false
+				},
+				{
+					"name" : "HEX43",
+					"strict" : false
+				},
+				{
+					"name" : "HEX44",
+					"strict" : false
+				},
+				{
+					"name" : "HEX45",
+					"strict" : false
+				},
+				{
+					"name" : "HEX46",
+					"strict" : false
+				},
+				{
+					"name" : "bonbon",
+					"strict" : false
+				},
+				{
+					"name" : "m25",
+					"strict" : false
+				},
+				{
+					"name" : "m5",
+					"strict" : false
+				},
+				{
+					"name" : "m10",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				}
+			]
+		}
+	]
+}
